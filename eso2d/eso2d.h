@@ -81,16 +81,14 @@ public:
 	WSelection(int x, int y);
 
 	int Width() const;
-	int PreviousWidth() const;
 
 	void Print(const class Grid&) const;
 
-	void Widen();
-	void Shrink();
+	void Widen(const class Grid&);
+	void Shrink(const class Grid&);
 
 private:
 	int width;
-	int prevWidth;
 };
 
 class Cursor
@@ -137,7 +135,7 @@ public:
 	Grid(const Grid&);
 	Grid(Grid&&) noexcept;
 
-	Grid& operator=(Grid);
+	Grid& operator=(const Grid&);
 	Grid& operator=(Grid&&) noexcept;
 
 	~Grid();

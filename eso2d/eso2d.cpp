@@ -1,5 +1,7 @@
 #include "eso2d.h"
 
+#include <algorithm>
+
 #include <cassert>
 
 Selection::Selection() : Selection(0, 0) { }
@@ -12,6 +14,7 @@ int Selection::PreviousY() const { return prevY; }
 
 void Selection::Print(const Grid& grid) const
 {
+	SetColor(MakeColor(0xFF, 0x99, 0x00, 0xFF));
 	Put(x, y, '_');
 }
 
@@ -39,25 +42,30 @@ void Selection::MoveBy(int dx, int dy, const Grid& grid)
 }
 
 WSelection::WSelection() : WSelection(0, 0) { }
-WSelection::WSelection(int x, int y) : Selection(x, y), width(1), prevWidth(1) { }
+WSelection::WSelection(int x, int y) : Selection(x, y), width(1) { }
 
 int WSelection::Width() const { return width; }
-int WSelection::PreviousWidth() const { return prevWidth; }
 
 void WSelection::Print(const Grid& grid) const
 {
-	int offset = 0;
-	for (int i = 0; i < width; i++, offset++)
+	SetColor(MakeColor(0xFF, 0x44, 0x00, 0xFF));
+	Put(X(), Y(), '_');
+	SetColor(MakeColor(0xFF, 0x99, 0x00, 0xFF));
+	int offset = 1;
+	for (int i = 1; i < width; i++, offset++)
 	{
 		if (X() + offset >= grid.Width()) { offset -= grid.Width(); }
 		Put(X() + offset, Y(), '_');
 	}
 }
 
-void WSelection::Widen() { prevWidth = width++; }
-void WSelection::Shrink()
+void WSelection::Widen(const Grid& grid)
 {
-	if (width > 1) { prevWidth = width--; }
+	if (width < grid.Width()) { width++; }
+}
+void WSelection::Shrink(const Grid& grid)
+{
+	if (width > 1) { width--; }
 }
 
 Cursor::Cursor() : Cursor(0, 0, 0, 0) { }
@@ -100,24 +108,46 @@ bool Cursor::Update(Grid& grid)
 		break;
 
 	case OpCode::Widen:
-		selected.Widen();
+		selected.Widen(grid);
 		break;
 
 	case OpCode::Shrink:
-		selected.Shrink();
+		selected.Shrink(grid);
 		break;
 
 	case OpCode::Move:
-		if (dx >= 0)
+		if (selected.X() > selected.PreviousX())
 		{
-			for (int i = selected.Width(); i >= 0; i--)
+			// moving right, iterate from right-to-left
+			for (int i = selected.Width() - 1; i >= 0; i--)
 			{
+				grid(selected)(i) = grid(selected, true)(i);
+			}
+			grid(selected, true)(0) = OpCode::None;
+		}
+		else if (selected.X() < selected.PreviousX())
+		{
+			// moving left, up, or down, iterate from left-to-right
+			for (int i = 0; i < selected.Width(); i++)
+			{
+				grid(selected)(i) = grid(selected, true)(i);
+			}
+			grid(selected, true)(selected.Width() - 1) = OpCode::None;
+		}
+		else if (selected.Y() != selected.PreviousY())
+		{
+			// copy data
+			for (int i = 0; i < selected.Width(); i++)
+			{
+				grid(selected)(i) = grid(selected, true)(i);
+			}
+			// erase where the data was moved from
+			for (int i = 0; i < selected.Width(); i++)
+			{
+				grid(selected, true)(i) = OpCode::None;
 			}
 		}
-		else
-		{
-
-		}
+		break;
 
 	default: // OpCode::Terminate is also covered here
 		return false;
@@ -197,14 +227,15 @@ Grid::Grid(int w, int h) : width(w), height(h), gridData(new int[w * h])
 
 Grid::Grid(const Grid& other) : width(other.width), height(other.height), gridData(new int[other.width * other.height]), cursors(other.cursors)
 {
-	std::fill(gridData, gridData + width * height, OpCode::None);
+	std::copy(other.gridData, other.gridData + other.width * other.height, gridData);
 }
 Grid::Grid(Grid&& other) noexcept : Grid()
 {
 	swap(*this, other);
+	other.~Grid();
 }
 
-Grid& Grid::operator=(Grid other)
+Grid& Grid::operator=(const Grid& other)
 {
 	Grid temp(other);
 	swap(*this, temp);
@@ -214,12 +245,14 @@ Grid& Grid::operator=(Grid other)
 Grid& Grid::operator=(Grid&& other) noexcept
 {
 	swap(*this, other);
+	other.~Grid();
 	return *this;
 }
 
 Grid::~Grid()
 {
 	delete[] gridData;
+	gridData = nullptr;
 }
 
 int& Grid::operator()(int x, int y)
@@ -269,7 +302,6 @@ void Grid::Print() const
 		}
 	}
 
-	SetColor(MakeColor(0xFF, 0x99, 0x00, 0xFF));
 	Layer(1);
 	for (const Cursor& cursor : cursors)
 	{
