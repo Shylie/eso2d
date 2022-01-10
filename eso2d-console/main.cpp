@@ -102,28 +102,32 @@ int main()
 
 			if (ipStartX >= 0 && ipStartY >= 0 && selStartX >= 0 && selStartY >= 0)
 			{
-				grid.AddCursor(ipStartX, ipStartY, selStartX, selStartY);
-				do
 				{
-					terminal_clear();
-					grid.Print();
-					terminal_refresh();
-					if (terminal_has_input())
+					Grid temp(grid);
+					grid.AddCursor(ipStartX, ipStartY, selStartX, selStartY);
+					do
 					{
-						int code = terminal_read();
-						if (code == TK_CLOSE)
+						terminal_clear();
+						grid.Print();
+						terminal_refresh();
+						if (terminal_has_input())
 						{
-							loop = false;
-							break;
+							int code = terminal_read();
+							if (code == TK_CLOSE)
+							{
+								loop = false;
+								break;
+							}
+							else if (code == TK_ESCAPE)
+							{
+								break;
+							}
 						}
-						else if (code == TK_ESCAPE)
-						{
-							break;
-						}
-					}
-					terminal_delay(200);
+						terminal_delay(200);
+					} while (grid.Update());
+
+					grid = std::move(temp);
 				}
-				while (grid.Update());
 
 				while (terminal_has_input())
 				{
