@@ -61,6 +61,10 @@ public:
 	int Y() const;
 	int PreviousX() const;
 	int PreviousY() const;
+	bool MovedLeft() const;
+	bool MovedRight() const;
+	bool MovedUp() const;
+	bool MovedDown() const;
 
 	void Print(const class Grid&) const;
 
@@ -72,6 +76,8 @@ private:
 	int y;
 	int prevX;
 	int prevY;
+	bool wrappedX;
+	bool wrappedY;
 };
 
 class WSelection : public Selection

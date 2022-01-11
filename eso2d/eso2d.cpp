@@ -4,13 +4,41 @@
 
 #include <cassert>
 
+static int Wrap(int a, int b)
+{
+	if (a < 0)
+	{
+		return (b - a) % b;
+	}
+	else
+	{
+		return a % b;
+	}
+}
+
 Selection::Selection() : Selection(0, 0) { }
-Selection::Selection(int x, int y) : x(x), y(y), prevX(x), prevY(y) { }
+Selection::Selection(int x, int y) : x(x), y(y), prevX(x), prevY(y), wrappedX(false), wrappedY(false) { }
 
 int Selection::X() const { return x; }
 int Selection::Y() const { return y; }
 int Selection::PreviousX() const { return prevX; }
 int Selection::PreviousY() const { return prevY; }
+bool Selection::MovedLeft() const
+{
+	return wrappedX ? x > prevX : x < prevX;
+}
+bool Selection::MovedRight() const
+{
+	return wrappedX ? x < prevX : x > prevX;
+}
+bool Selection::MovedUp() const
+{
+	return wrappedY ? y < prevY : y > prevY;
+}
+bool Selection::MovedDown() const
+{
+	return wrappedY ? y > prevY : y < prevY;
+}
 
 void Selection::Print(const Grid& grid) const
 {
@@ -20,14 +48,19 @@ void Selection::Print(const Grid& grid) const
 
 void Selection::SetPosition(int x, int y, const Grid& grid)
 {
-	while (x < 0)
-	{
-		x += grid.Width();
-	}
-	while (x >= grid.Width()) { x -= grid.Width(); }
+	wrappedX = wrappedY = false;
 
-	while (y < 0) { y += grid.Height(); }
-	while (y >= grid.Height()) { y -= grid.Height(); }
+	if (x < 0 || x >= grid.Width())
+	{
+		x = Wrap(x, grid.Width());
+		wrappedX = true;
+	}
+
+	if (y < 0 || y >= grid.Height())
+	{
+		y = Wrap(y, grid.Height());
+		wrappedY = true;
+	}
 
 	prevX = this->x;
 	prevY = this->y;
@@ -116,35 +149,21 @@ bool Cursor::Update(Grid& grid)
 		break;
 
 	case OpCode::Move:
-		if (selected.X() > selected.PreviousX())
+		if (selected.MovedRight())
 		{
 			// moving right, iterate from right-to-left
 			for (int i = selected.Width() - 1; i >= 0; i--)
 			{
 				grid(selected)(i) = grid(selected, true)(i);
 			}
-			grid(selected, true)(0) = OpCode::None;
 		}
-		else if (selected.X() < selected.PreviousX())
+		else if (selected.MovedLeft() || selected.Y() != selected.PreviousY())
 		{
-			// moving left, up, or down, iterate from left-to-right
+			// moving left, iterate from left-to-right
+			// moving up or down, iteration order doesn't matter, memory will not overlap
 			for (int i = 0; i < selected.Width(); i++)
 			{
 				grid(selected)(i) = grid(selected, true)(i);
-			}
-			grid(selected, true)(selected.Width() - 1) = OpCode::None;
-		}
-		else if (selected.Y() != selected.PreviousY())
-		{
-			// copy data
-			for (int i = 0; i < selected.Width(); i++)
-			{
-				grid(selected)(i) = grid(selected, true)(i);
-			}
-			// erase where the data was moved from
-			for (int i = 0; i < selected.Width(); i++)
-			{
-				grid(selected, true)(i) = OpCode::None;
 			}
 		}
 		break;
@@ -232,7 +251,6 @@ Grid::Grid(const Grid& other) : width(other.width), height(other.height), gridDa
 Grid::Grid(Grid&& other) noexcept : Grid()
 {
 	swap(*this, other);
-	other.~Grid();
 }
 
 Grid& Grid::operator=(const Grid& other)
@@ -244,8 +262,8 @@ Grid& Grid::operator=(const Grid& other)
 }
 Grid& Grid::operator=(Grid&& other) noexcept
 {
-	swap(*this, other);
-	other.~Grid();
+	Grid temp(std::move(other));
+	swap(*this, temp);
 	return *this;
 }
 
