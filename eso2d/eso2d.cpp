@@ -8,7 +8,7 @@ static int Wrap(int a, int b)
 {
 	if (a < 0)
 	{
-		return (b - a) % b;
+		return b - (b - a) % b;
 	}
 	else
 	{
@@ -115,6 +115,7 @@ enum class Side
 {
 	None,
 	Left,
+	All,
 	Right
 };
 
@@ -174,6 +175,14 @@ bool Cursor::Update(Grid& grid)
 			{
 				grid(selected)(i) = grid(selected, true)(i);
 			}
+		}
+		break;
+
+	case OpCode::Set:
+		Move(grid);
+		for (int i = 0; i < selected.Width(); i++)
+		{
+			grid(selected)(i) = grid(ip);
 		}
 		break;
 
