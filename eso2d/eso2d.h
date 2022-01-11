@@ -1,7 +1,6 @@
 #pragma once
 
 #include <cstdint>
-#include <utility>
 #include <vector>
 
 /// <summary>
@@ -45,7 +44,10 @@ namespace OpCode
 		Widen = 'w', // widen selection cursor
 		Shrink = 's', // shrink selection cursor
 		Move = 'm', // move data under selection from old selection position to current selection position
-		Terminate = '#', // kill cursor. if all cursors are dead, stop program execution
+		LeftIndicator = '<', // some instructions use either the left or right side of the selection
+		RightIndicator = '>', // these instructions indicate which side to use.
+		Conditional = '?', //  move ip forward one and compare left or right side of selection to ip, and move right if equal, left if not.
+		Terminate = '#', // kill this cursor. if all cursors are dead, stop program execution
 		IPStart = '@', // ip starts at this location
 		SelectionStart = '_' // selection starts at this location
 	};
@@ -84,7 +86,7 @@ class WSelection : public Selection
 {
 public:
 	WSelection();
-	WSelection(int x, int y);
+	WSelection(int x, int y, int w);
 
 	int Width() const;
 
@@ -102,6 +104,7 @@ class Cursor
 public:
 	Cursor();
 	Cursor(int ipx, int ipy, int sx, int sy);
+	Cursor(int ipx, int ipy, int sx, int sy, int sw, int dx, int dy);
 
 	/// <summary>
 	/// Print the cursor to the terminal.

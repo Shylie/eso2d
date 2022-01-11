@@ -74,8 +74,8 @@ void Selection::MoveBy(int dx, int dy, const Grid& grid)
 	SetPosition(x + dx, y + dy, grid);
 }
 
-WSelection::WSelection() : WSelection(0, 0) { }
-WSelection::WSelection(int x, int y) : Selection(x, y), width(1) { }
+WSelection::WSelection() : WSelection(0, 0, 1) { }
+WSelection::WSelection(int x, int y, int w) : Selection(x, y), width(w < 1 ? 1 : w) { }
 
 int WSelection::Width() const { return width; }
 
@@ -102,7 +102,8 @@ void WSelection::Shrink(const Grid& grid)
 }
 
 Cursor::Cursor() : Cursor(0, 0, 0, 0) { }
-Cursor::Cursor(int ipx, int ipy, int sx, int sy) : ip(ipx, ipy), selected(sx, sy), dx(1), dy(0) { }
+Cursor::Cursor(int ipx, int ipy, int sx, int sy) : Cursor(ipx, ipy, sx, sy, 1, 1, 0) { }
+Cursor::Cursor(int ipx, int ipy, int sx, int sy, int sw, int dx, int dy) : ip(ipx, ipy), selected(sx, sy, sw), dx(dx), dy(dy) { }
 
 void Cursor::Print(const Grid& grid) const
 {
@@ -110,9 +111,17 @@ void Cursor::Print(const Grid& grid) const
 	selected.Print(grid);
 }
 
+enum class Side
+{
+	None,
+	Left,
+	Right
+};
+
 bool Cursor::Update(Grid& grid)
 {
 	int instruction = grid(ip);
+	Side side = Side::None;
 
 	switch (instruction)
 	{
@@ -168,11 +177,43 @@ bool Cursor::Update(Grid& grid)
 		}
 		break;
 
+	case OpCode::LeftIndicator:
+		side = Side::Left;
+		break;
+
+	case OpCode::RightIndicator:
+		side = Side::Right;
+		break;
+
 	default: // OpCode::Terminate is also covered here
 		return false;
 	}
 
 	Move(grid);
+
+	if (side != Side::None)
+	{
+		instruction = grid(ip);
+		int target = side == Side::Left ? grid(selected)(0) : grid(selected)(selected.Width() - 1);
+		switch (instruction)
+		{
+		case OpCode::Conditional:
+			Move(grid);
+			if (grid(ip) == target)
+			{
+				TurnRight();
+			}
+			else
+			{
+				TurnLeft();
+			}
+			Move(grid);
+			break;
+
+		default:
+			return false;
+		}
+	}
 
 	return true;
 }
@@ -333,7 +374,7 @@ bool Grid::Update()
 	{
 		if (!cursors[i].Update(*this))
 		{
-			cursors.pop_back();
+			cursors.erase(cursors.begin() + i);
 		}
 	}
 
