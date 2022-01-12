@@ -186,6 +186,17 @@ bool Cursor::Update(Grid& grid)
 		}
 		break;
 
+	case OpCode::Split:
+	{
+		Cursor other(*this);
+		other.TurnLeft();
+		other.Move(grid);
+		TurnRight();
+		Move(grid);
+		grid.AddCursor(other);
+		break;
+	}
+
 	case OpCode::LeftIndicator:
 		side = Side::Left;
 		break;
@@ -203,7 +214,7 @@ bool Cursor::Update(Grid& grid)
 	if (side != Side::None)
 	{
 		instruction = grid(ip);
-		int target = side == Side::Left ? grid(selected)(0) : grid(selected)(selected.Width() - 1);
+		int& target = side == Side::Left ? grid(selected)(0) : grid(selected)(selected.Width() - 1);
 		switch (instruction)
 		{
 		case OpCode::Conditional:
@@ -216,6 +227,12 @@ bool Cursor::Update(Grid& grid)
 			{
 				TurnLeft();
 			}
+			Move(grid);
+			break;
+
+		case OpCode::Set:
+			Move(grid);
+			target = grid(ip);
 			Move(grid);
 			break;
 
@@ -393,6 +410,11 @@ bool Grid::Update()
 void Grid::AddCursor(int ipX, int ipY, int selX, int selY)
 {
 	cursors.emplace_back(ipX, ipY, selX, selY);
+}
+
+void Grid::AddCursor(const Cursor& cursor)
+{
+	cursors.push_back(cursor);
 }
 
 void Grid::Stop()
