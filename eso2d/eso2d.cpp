@@ -182,13 +182,24 @@ bool Cursor::Update(Grid& grid)
 	{
 		int value = 0; // sum
 		int placeValue = 1;
+		bool validOperation = true;
 		for (int i = selected.Width() - 1; i >= 0; i--)
 		{
-			value += (grid(selected)(i) - '0') * placeValue; // digit * place value
+			// check if grid state is a number
+			int gridValue = grid(selected)(i);
+			if (gridValue < '0' || gridValue > '9') { validOperation = false; }
+
+			value += (gridValue - '0') * placeValue; // digit * place value
 			placeValue *= 10; // increment place value every iteration
 		}
+
+		// do nothing if not a valid number
+		if (!validOperation) { break; }
+		
 		value += 1; // increment
+		
 		placeValue = 1;
+		
 		for (int i = selected.Width() - 1; i >= 0; i--)
 		{
 			// divide by place value to make single digit (also truncates unneeded digits due to integer type)
@@ -203,14 +214,25 @@ bool Cursor::Update(Grid& grid)
 	{
 		int value = 0; // sum
 		int placeValue = 1;
+		bool validOperation = true;
 		for (int i = selected.Width() - 1; i >= 0; i--)
 		{
-			value += (grid(selected)(i) - '0') * placeValue; // digit * place value
+			// check if grid state is a number
+			int gridValue = grid(selected)(i);
+			if (gridValue < '0' || gridValue > '9') { validOperation = false; }
+
+			value += (gridValue - '0') * placeValue; // digit * place value
 			placeValue *= 10; // increment place value every iteration
 		}
+
+		// do nothing if not a valid number
+		if (!validOperation) { break; }
+
 		value -= 1;
 		if (value < 0) { value = 0; } // no negative number support in this esolang
-		placeValue = 10; // set to (place value) + 1
+		
+		placeValue = 1;
+		
 		for (int i = selected.Width() - 1; i >= 0; i--)
 		{
 			// divide by place value to make single digit (also truncates unneeded digits due to integer type)
