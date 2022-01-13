@@ -243,20 +243,61 @@ bool Cursor::Update(Grid& grid)
 	}
 
 	case OpCode::Set:
-		Move(grid);
+		ip.MoveBy(dx, dy, grid);
 		for (int i = 0; i < selected.Width(); i++)
 		{
 			grid(selected)(i) = grid(ip);
 		}
 		break;
 
+	case OpCode::Conditional:
+	{
+		bool equal = true;
+		ip.MoveBy(dx, dy, grid);
+		int gridValue = grid(ip);
+		switch (gridValue)
+		{
+		case 'N':
+			for (int i = 0; i < selected.Width(); i++)
+			{
+				if (grid(selected)(i) < '0' || grid(selected)(i) > '9')
+				{
+					equal = false;
+					break;
+				}
+			}
+			break;
+
+		default:
+			for (int i = 0; i < selected.Width(); i++)
+			{
+				if (gridValue != grid(selected)(i))
+				{
+					equal = false;
+					break;
+				}
+			}
+			break;
+		}
+		if (equal)
+		{
+			TurnRight();
+		}
+		else
+		{
+			TurnLeft();
+		}
+		ip.MoveBy(dx, dy, grid);
+		break;
+	}
+
 	case OpCode::Split:
 	{
 		Cursor other(*this);
 		other.TurnLeft();
-		other.Move(grid);
+		other.ip.MoveBy(other.dx, other.dy, grid);
 		TurnRight();
-		Move(grid);
+		ip.MoveBy(dx, dy, grid);
 		grid.AddCursor(other);
 		break;
 	}
@@ -282,22 +323,63 @@ bool Cursor::Update(Grid& grid)
 		switch (instruction)
 		{
 		case OpCode::Conditional:
-			Move(grid);
-			if (grid(ip) == target)
+			ip.MoveBy(dx, dy, grid);
+			switch (grid(ip))
 			{
-				TurnRight();
+			case 'W':
+				if (side == Side::Right)
+				{
+					if (selected.Width() == grid.Width())
+					{
+						TurnRight();
+					}
+					else
+					{
+						TurnLeft();
+					}
+				}
+				else
+				{
+					if (selected.Width() == 1)
+					{
+						TurnRight();
+					}
+					else
+					{
+						TurnLeft();
+					}
+				}
+				break;
+
+			case 'N':
+				if (target >= '0' && target <= '9')
+				{
+					TurnRight();
+				}
+				else
+				{
+					TurnLeft();
+				}
+				break;
+
+			default:
+				if (grid(ip) == target)
+				{
+					TurnRight();
+				}
+				else
+				{
+					TurnLeft();
+				}
+				break;
 			}
-			else
-			{
-				TurnLeft();
-			}
-			Move(grid);
+			ip.MoveBy(dx, dy, grid);
 			break;
 
 		case OpCode::Set:
-			Move(grid);
+			ip.MoveBy(dx, dy, grid);
 			target = grid(ip);
-			Move(grid);
+			ip.MoveBy(dx, dy, grid);
 			break;
 
 		default:

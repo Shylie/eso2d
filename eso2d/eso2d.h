@@ -44,13 +44,21 @@ namespace OpCode
 		Widen = 'w', // widen selection cursor
 		Shrink = 's', // shrink selection cursor
 		Move = 'm', // move data under selection from old selection position to current selection position
-		Set = '=', // move ip forward and set all of the selection to ip
 		Increment = '+', // increment number under selection
 		Decrement = '-', // decrement number under selection
+		// move ip forward and set all of the selection to ip
+		// optionally precede with LeftIndicator or RightIndicator to only set the left or right side of the selection
+		Set = '=',
+		// move ip forward one and compare all of selection to ip, and move right if equal, left if not.
+		// optionally precede with LeftIndicator or RightIndicator to only compare the left or right side of the selection
+		// some capital alphabetical letters have special behavior rather than performing identity checks
+		// N - tue if the selection is numeric (0-9)
+		// >W - true if selection width = grid width
+		// <W - true if selection width = 1
+		Conditional = '?',
 		Split = '%', // create another cursor, turn one left and one right and move both
 		LeftIndicator = '<', // some instructions use either the left or right side of the selection
 		RightIndicator = '>', // these instructions indicate which side to use.
-		Conditional = '?', //  move ip forward one and compare left or right side of selection to ip, and move right if equal, left if not.
 		Terminate = '#', // kill this cursor. if all cursors are dead, stop program execution
 		IPStart = '@', // ip starts at this location
 		SelectionStart = '_' // selection starts at this location
