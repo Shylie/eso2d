@@ -43,7 +43,7 @@ namespace OpCode
 		Down = 'd', // d - move selection down
 		Widen = 'w', // widen selection cursor
 		Shrink = 's', // shrink selection cursor
-		Move = 'm', // move data under selection from old selection position to current selection position
+		Move = 'm', // copy data under selection from old selection position to current selection position
 		Increment = '+', // increment number under selection
 		Decrement = '-', // decrement number under selection
 		// move ip forward and set all of the selection to ip
