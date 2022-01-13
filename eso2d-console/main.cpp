@@ -123,7 +123,7 @@ int main()
 								break;
 							}
 						}
-						terminal_delay(200);
+						terminal_delay(100);
 					} while (grid.Update());
 
 					grid = std::move(temp);
