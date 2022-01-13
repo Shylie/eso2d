@@ -178,6 +178,48 @@ bool Cursor::Update(Grid& grid)
 		}
 		break;
 
+	case OpCode::Increment:
+	{
+		int value = 0; // sum
+		int placeValue = 1;
+		for (int i = selected.Width() - 1; i >= 0; i--)
+		{
+			value += (grid(selected)(i) - '0') * placeValue; // digit * place value
+			placeValue *= 10; // increment place value every iteration
+		}
+		value += 1; // increment
+		placeValue = 1;
+		for (int i = selected.Width() - 1; i >= 0; i--)
+		{
+			// divide by place value to make single digit (also truncates unneeded digits due to integer type)
+			// add to '0' to map to character range
+			grid(selected)(i) = '0' + (value % (placeValue * 10) / placeValue);
+			placeValue *= 10;
+		}
+		break;
+	}
+
+	case OpCode::Decrement:
+	{
+		int value = 0; // sum
+		int placeValue = 1;
+		for (int i = selected.Width() - 1; i >= 0; i--)
+		{
+			value += (grid(selected)(i) - '0') * placeValue; // digit * place value
+			placeValue *= 10; // increment place value every iteration
+		}
+		value -= 1;
+		if (value < 0) { value = 0; } // no negative number support in this esolang
+		placeValue = 10; // set to (place value) + 1
+		for (int i = selected.Width() - 1; i >= 0; i--)
+		{
+			// divide by place value to make single digit (also truncates unneeded digits due to integer type)
+			grid(selected)(i) = '0' + (value % (placeValue * 10) / placeValue);
+			placeValue *= 10; // increment place value every iteration
+		}
+		break;
+	}
+
 	case OpCode::Set:
 		Move(grid);
 		for (int i = 0; i < selected.Width(); i++)

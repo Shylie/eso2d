@@ -45,6 +45,8 @@ namespace OpCode
 		Shrink = 's', // shrink selection cursor
 		Move = 'm', // move data under selection from old selection position to current selection position
 		Set = '=', // move ip forward and set all of the selection to ip
+		Increment = '+', // increment number under selection
+		Decrement = '-', // decrement number under selection
 		Split = '%', // create another cursor, turn one left and one right and move both
 		LeftIndicator = '<', // some instructions use either the left or right side of the selection
 		RightIndicator = '>', // these instructions indicate which side to use.
