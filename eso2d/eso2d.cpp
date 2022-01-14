@@ -281,11 +281,11 @@ bool Cursor::Update(Grid& grid)
 		}
 		if (equal)
 		{
-			TurnRight();
+			TurnLeft();
 		}
 		else
 		{
-			TurnLeft();
+			TurnRight();
 		}
 		break;
 	}
@@ -330,22 +330,22 @@ bool Cursor::Update(Grid& grid)
 				{
 					if (selected.Width() == grid.Width())
 					{
-						TurnRight();
+						TurnLeft();
 					}
 					else
 					{
-						TurnLeft();
+						TurnRight();
 					}
 				}
 				else
 				{
 					if (selected.Width() == 1)
 					{
-						TurnRight();
+						TurnLeft();
 					}
 					else
 					{
-						TurnLeft();
+						TurnRight();
 					}
 				}
 				break;
@@ -353,22 +353,22 @@ bool Cursor::Update(Grid& grid)
 			case 'N':
 				if (target >= '0' && target <= '9')
 				{
-					TurnRight();
+					TurnLeft();
 				}
 				else
 				{
-					TurnLeft();
+					TurnRight();
 				}
 				break;
 
 			default:
 				if (grid(ip) == target)
 				{
-					TurnRight();
+					TurnLeft();
 				}
 				else
 				{
-					TurnLeft();
+					TurnRight();
 				}
 				break;
 			}
