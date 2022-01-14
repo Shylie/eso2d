@@ -287,7 +287,6 @@ bool Cursor::Update(Grid& grid)
 		{
 			TurnLeft();
 		}
-		ip.MoveBy(dx, dy, grid);
 		break;
 	}
 
@@ -373,13 +372,13 @@ bool Cursor::Update(Grid& grid)
 				}
 				break;
 			}
-			ip.MoveBy(dx, dy, grid);
+			Move(grid);
 			break;
 
 		case OpCode::Set:
 			ip.MoveBy(dx, dy, grid);
 			target = grid(ip);
-			ip.MoveBy(dx, dy, grid);
+			Move(grid);
 			break;
 
 		default:
