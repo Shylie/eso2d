@@ -67,6 +67,13 @@ namespace OpCode
 
 class Selection
 {
+	int x;
+	int y;
+	int prevX;
+	int prevY;
+	bool wrappedX;
+	bool wrappedY;
+
 public:
 	Selection();
 	Selection(int x, int y);
@@ -84,18 +91,12 @@ public:
 
 	void SetPosition(int x, int y, const class Grid&);
 	void MoveBy(int dx, int dy, const class Grid&);
-
-private:
-	int x;
-	int y;
-	int prevX;
-	int prevY;
-	bool wrappedX;
-	bool wrappedY;
 };
 
 class WSelection : public Selection
 {
+	int width;
+
 public:
 	WSelection();
 	WSelection(int x, int y, int w);
@@ -106,13 +107,20 @@ public:
 
 	void Widen(const class Grid&);
 	void Shrink(const class Grid&);
-
-private:
-	int width;
 };
 
 class Cursor
 {
+	Selection ip;
+	WSelection selected;
+
+	int dx;
+	int dy;
+
+	void Move(class Grid&);
+	void TurnLeft();
+	void TurnRight();
+
 public:
 	Cursor();
 	Cursor(int ipx, int ipy, int sx, int sy);
@@ -130,56 +138,10 @@ public:
 	/// <param name="grid">Grid containing the code.</param>
 	/// <returns>True if the cursor is still alive, false otherwise.</returns>
 	bool Update(class Grid& grid);
-
-private:
-	Selection ip;
-	WSelection selected;
-
-	int dx;
-	int dy;
-
-	void Move(class Grid&);
-	void TurnLeft();
-	void TurnRight();
 };
 
 class Grid
 {
-public:
-	class View;
-	class ConstView;
-
-	friend void swap(Grid& first, Grid& second) noexcept;
-
-	Grid(int w, int h);
-
-	Grid(const Grid&);
-	Grid(Grid&&) noexcept;
-
-	Grid& operator=(const Grid&);
-	Grid& operator=(Grid&&) noexcept;
-
-	~Grid();
-
-	int& operator()(int x, int y);
-	int operator()(int x, int y) const;
-	int& operator()(Selection selection, bool previous = false);
-	int operator()(Selection selection, bool previous = false) const;
-	View operator()(WSelection selection, bool previous = false);
-	ConstView operator()(WSelection selection, bool previous = false) const;
-
-	int Width() const;
-	int Height() const;
-
-	void Print() const;
-
-	bool Update();
-
-	void AddCursor(int ipx, int ipy, int sx, int sy);
-	void AddCursor(const Cursor& cursor);
-	void Stop();
-
-private:
 	int width;
 	int height;
 	int* gridData;
@@ -216,4 +178,38 @@ private:
 	};
 
 	Grid();
+
+public:
+	class View;
+	class ConstView;
+
+	friend void swap(Grid& first, Grid& second) noexcept;
+
+	Grid(int w, int h);
+
+	Grid(const Grid&);
+	Grid(Grid&&) noexcept;
+
+	Grid& operator=(const Grid&);
+	Grid& operator=(Grid&&) noexcept;
+
+	~Grid();
+
+	int& operator()(int x, int y);
+	int operator()(int x, int y) const;
+	int& operator()(Selection selection, bool previous = false);
+	int operator()(Selection selection, bool previous = false) const;
+	View operator()(WSelection selection, bool previous = false);
+	ConstView operator()(WSelection selection, bool previous = false) const;
+
+	int Width() const;
+	int Height() const;
+
+	void Print() const;
+
+	bool Update();
+
+	void AddCursor(int ipx, int ipy, int sx, int sy);
+	void AddCursor(const Cursor& cursor);
+	void Stop();
 };
