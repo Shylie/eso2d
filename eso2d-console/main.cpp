@@ -104,8 +104,9 @@ int main()
 			{
 				{
 					Grid temp(grid);
-					grid.AddCursor(ipStartX, ipStartY, selStartX, selStartY);
-					do
+					grid.QueueAddCursor(ipStartX, ipStartY, selStartX, selStartY);
+					grid.AddCursors();
+					while (true)
 					{
 						terminal_clear();
 						grid.Print();
@@ -124,7 +125,10 @@ int main()
 							}
 						}
 						terminal_delay(100);
-					} while (grid.Update());
+
+						if (!grid.Update()) { break; }
+						grid.AddCursors();
+					}
 
 					grid = std::move(temp);
 				}

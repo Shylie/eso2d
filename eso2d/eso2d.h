@@ -147,6 +147,7 @@ class Grid
 	int* gridData;
 
 	std::vector<Cursor> cursors;
+	std::vector<Cursor> cursorsToAdd;
 
 	class View
 	{
@@ -209,7 +210,10 @@ public:
 
 	bool Update();
 
-	void AddCursor(int ipx, int ipy, int sx, int sy);
-	void AddCursor(const Cursor& cursor);
+	void QueueAddCursor(int ipx, int ipy, int sx, int sy);
+	void QueueAddCursor(const Cursor& cursor);
+
+	void AddCursors();
+
 	void Stop();
 };

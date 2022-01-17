@@ -294,10 +294,9 @@ bool Cursor::Update(Grid& grid)
 	{
 		Cursor other(*this);
 		other.TurnLeft();
-		other.ip.MoveBy(other.dx, other.dy, grid);
+		other.Move(grid);
 		TurnRight();
-		ip.MoveBy(dx, dy, grid);
-		grid.AddCursor(other);
+		grid.QueueAddCursor(other);
 		break;
 	}
 
@@ -552,14 +551,23 @@ bool Grid::Update()
 	return cursors.size() > 0;
 }
 
-void Grid::AddCursor(int ipX, int ipY, int selX, int selY)
+void Grid::QueueAddCursor(int ipX, int ipY, int selX, int selY)
 {
-	cursors.emplace_back(ipX, ipY, selX, selY);
+	cursorsToAdd.emplace_back(ipX, ipY, selX, selY);
 }
 
-void Grid::AddCursor(const Cursor& cursor)
+void Grid::QueueAddCursor(const Cursor& cursor)
 {
-	cursors.push_back(cursor);
+	cursorsToAdd.push_back(cursor);
+}
+
+void Grid::AddCursors()
+{
+	while (!cursorsToAdd.empty())
+	{
+		cursors.push_back(cursorsToAdd.back());
+		cursorsToAdd.pop_back();
+	}
 }
 
 void Grid::Stop()
