@@ -181,9 +181,6 @@ class Grid
 	Grid();
 
 public:
-	class View;
-	class ConstView;
-
 	friend void swap(Grid& first, Grid& second) noexcept;
 
 	Grid(int w, int h);
