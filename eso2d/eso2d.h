@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <vector>
+#include <iostream>
 
 /// <summary>
 /// Print code into the terminal at (x, y).
@@ -182,6 +183,8 @@ class Grid
 
 public:
 	friend void swap(Grid& first, Grid& second) noexcept;
+	friend std::ostream& operator<<(std::ostream& out, const Grid& grid);
+	friend std::istream& operator>>(std::istream& in, Grid& grid);
 
 	Grid(int w, int h);
 

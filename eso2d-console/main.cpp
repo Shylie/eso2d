@@ -1,6 +1,8 @@
 #include "eso2d.h"
 #include "BearLibTerminal.h"
 
+#include <fstream>
+
 void Put(int x, int y, int code)
 {
 	terminal_put(x, y, code);
@@ -31,6 +33,14 @@ int main()
 	const int w = terminal_state(TK_WIDTH);
 	const int h = terminal_state(TK_HEIGHT);
 	Grid grid(w, h);
+
+	{
+		std::ifstream in("autosave.e2d", std::ios_base::binary);
+		if (in)
+		{
+			in >> grid;
+		}
+	}
 
 	int x = 0;
 	int y = 0;
@@ -171,6 +181,11 @@ int main()
 	}
 
 	terminal_close();
+
+	{
+		std::ofstream out("autosave.e2d", std::ios_base::binary);
+		out << grid;
+	}
 
 	return 0;
 }

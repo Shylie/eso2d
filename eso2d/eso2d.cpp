@@ -448,6 +448,37 @@ void swap(Grid& first, Grid& second) noexcept
 	swap(first.cursors, second.cursors);
 }
 
+std::ostream& operator<<(std::ostream& out, const Grid& grid)
+{
+	out << grid.width << std::endl;
+	out << grid.height << std::endl;
+	for (int i = 0; i < grid.width; i++)
+	{
+		for (int j = 0; j < grid.height; j++)
+		{
+			out << grid(i, j) << std::endl;
+		}
+	}
+	return out;
+}
+
+std::istream& operator>>(std::istream& in, Grid& grid)
+{
+	int w, h;
+	in >> w;
+	in >> h;
+	Grid tmp(w, h);
+	for (int i = 0; i < grid.width; i++)
+	{
+		for (int j = 0; j < grid.height; j++)
+		{
+			in >> tmp(i, j);
+		}
+	}
+	grid = std::move(tmp);
+	return in;
+}
+
 Grid::Grid() : width(0), height(0), gridData(nullptr) { }
 Grid::Grid(int w, int h) : width(w), height(h), gridData(new int[w * h])
 {
