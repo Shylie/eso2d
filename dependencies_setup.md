@@ -8,6 +8,7 @@ eso2d
 └───dependencies
     ├───include
     │       BearLibTerminal.h
+    │       dylib.hpp
     │       
     ├───x64
     │   ├───bin
