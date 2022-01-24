@@ -1,4 +1,4 @@
-﻿# Depenencies Setup
+﻿# Dependencies Setup
 
 This project depends on [BearLibTerminal](http://foo.wyrd.name/en:bearlibterminal) and [dylib](https://github.com/martin-olivier/dylib).
 Dylib is included as a git submodule, but BearLibTerminal should be downloaded manually.
