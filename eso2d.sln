@@ -7,6 +7,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "eso2d", "eso2d\eso2d.vcxpro
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "eso2d-console", "eso2d-console\eso2d-console.vcxproj", "{7DA2A858-B630-490B-BC6A-FDFF1A289D97}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{679238D5-741C-4D3B-9D83-C7AFC76729FB}"
+	ProjectSection(SolutionItems) = preProject
+		dependencies_setup.md = dependencies_setup.md
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
