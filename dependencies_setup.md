@@ -1,6 +1,6 @@
 ﻿# Dependencies Setup
 
-This project depends on [BearLibTerminal](http://foo.wyrd.name/en:bearlibterminal) and [dylib](https://github.com/martin-olivier/dylib).
+This project depends on [BearLibTerminal](http://foo.wyrd.name/en:bearlibterminal).
 
 Set up the dependencies folder as follows:
 ```
@@ -8,7 +8,6 @@ eso2d
 └───dependencies
     ├───include
     │       BearLibTerminal.h
-    │       dylib.hpp
     │       
     ├───x64
     │   ├───bin
